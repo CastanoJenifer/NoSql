@@ -7,10 +7,12 @@ import com.example.demo.controllers.domain.entity.Categories;
 import com.example.demo.controllers.domain.repository.AuthorRepository;
 import com.example.demo.controllers.domain.repository.BookRepository;
 import com.example.demo.controllers.domain.repository.CategoriesRepository;
+import com.example.demo.controllers.domain.repository.ReviewRepository;
 import com.example.demo.controllers.dto.BookRequest;
 import com.example.demo.controllers.exception.BookAlreadyExistsException;
 import com.example.demo.controllers.exception.BookNotFoundException;
 import com.example.demo.controllers.response.BookResponse;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,6 +40,7 @@ public class BookService {
     private final CategoriesRepository genreRepository;
     private final MongoTemplate mongoTemplate;
     private final CacheManager cacheManager;
+    private final ReviewRepository reviewRepository;
 
     @Transactional
     public BookResponse createBook(BookRequest request) {
@@ -256,6 +260,8 @@ public class BookService {
                 .build();
     }
 
+
+
     private void updateGenresWithNewBook(Book book) {
         BookSummary summary = createBookSummary(book);
         book.getCategories().forEach(genreName -> {
@@ -301,12 +307,73 @@ public class BookService {
         genre.getBooks().add(summary);
         genreRepository.save(genre);
     }
-
     private BookSummary createBookSummary(Book book) {
         return BookSummary.builder()
                 .bookId(book.getId())
                 .title(book.getTitle())
                 .coverImageUrl(book.getCoverImageUrl())
                 .build();
+    }
+
+    @Transactional
+    public void updateBookAverageRating(String bookId) {
+        // Validar que el bookId no sea nulo
+        if (bookId == null || bookId.trim().isEmpty()) {
+            log.error("Se intentó actualizar el promedio de calificaciones con un bookId nulo o vacío");
+            throw new IllegalArgumentException("El ID del libro no puede ser nulo o vacío");
+        }
+
+        Optional<Book> bookOpt = bookRepository.findById(bookId);
+        if (bookOpt.isEmpty()) {
+            throw new BookNotFoundException("Libro no encontrado con ID: " + bookId);
+        }
+
+        Book book = bookOpt.get();
+
+        // Obtener todas las reseñas del libro desde la colección Review
+        List<com.example.demo.controllers.domain.entity.Review> reviews = reviewRepository.findByBookId(bookId);
+
+        if (reviews == null || reviews.isEmpty()) {
+            book.setAverageRating(0.0);
+            book.setRatingsCount(0);
+        } else {
+            double sum = reviews.stream()
+                    .mapToInt(com.example.demo.controllers.domain.entity.Review::getRating)
+                    .sum();
+            double average = sum / reviews.size();
+            book.setAverageRating(average);
+            book.setRatingsCount(reviews.size());
+        }
+
+        book.setUpdatedAt(LocalDateTime.now());
+
+        bookRepository.save(book);
+        log.info("Promedio de reseñas actualizado para el libro con ID: {}. Promedio: {}, Total: {}",
+                bookId, book.getAverageRating(), book.getRatingsCount());
+
+        updateBookSummaryInAuthorAndGenre(book);
+    }
+    private void updateBookSummaryInAuthorAndGenre(Book book) {
+        // Actualizar Author
+        authorRepository.findByName(book.getAuthor()).ifPresent(author -> {
+            author.getBooks().stream()
+                    .filter(summary -> summary.getBookId().equals(book.getId()))
+                    .forEach(summary -> {
+                        summary.setAverageRating(book.getAverageRating());
+                    });
+            authorRepository.save(author);
+        });
+
+        // Actualizar Genre
+        book.getCategories().forEach(genreName ->
+                genreRepository.findByName(genreName).ifPresent(genre -> {
+                    genre.getBooks().stream()
+                            .filter(summary -> summary.getBookId().equals(book.getId()))
+                            .forEach(summary -> {
+                                summary.setAverageRating(book.getAverageRating());
+                            });
+                    genreRepository.save(genre);
+                })
+        );
     }
 }

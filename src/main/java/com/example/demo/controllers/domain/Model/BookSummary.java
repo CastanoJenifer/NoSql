@@ -29,4 +29,8 @@ public class BookSummary implements Serializable {
 
     @Schema(description = "URL de la portada del libro", example = "https://ejemplo.com/portada.jpg")
     private String coverImageUrl;
+
+    @Schema(description = "Calificación promedio del libro", example = "4.5")
+    private Double averageRating;
+
 }
