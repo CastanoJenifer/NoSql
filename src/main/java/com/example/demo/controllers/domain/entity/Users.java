@@ -4,7 +4,6 @@ package com.example.demo.controllers.domain.entity;
 import com.example.demo.controllers.domain.Model.BookSummary;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
