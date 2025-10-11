@@ -61,7 +61,6 @@ public class UserController {
     }
 
     //Favoritos
-    //Favoritos
     @PostMapping("/{userId}/favorites")
     @Operation(summary = "Agregar un libro a favoritos")
     @ApiResponses(value = {

@@ -114,11 +114,13 @@ public class UserService {
 
         // Remover por bookId
         boolean removed = user.getFavorites().removeIf(fav -> fav.getBookId().equals(bookId));
-        userRepository.save(user);
 
-        if (removed) {
-            log.info("Libro {} removido de favoritos del usuario {}", bookId, userId);
+        if (!removed) {
+            throw new BookNotFoundException("El libro con ID " + bookId + " no está en favoritos del usuario");
         }
+        userRepository.save(user);
+        log.info("Libro {} removido de favoritos del usuario {}", bookId, userId);
+
     }
 
     //Obtener libros favoritos del usuario
