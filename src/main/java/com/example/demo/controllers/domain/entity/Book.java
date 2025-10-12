@@ -13,6 +13,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -74,6 +75,10 @@ public class Book {
     private LocalDateTime updatedAt;
 
 
+    @Schema(description = "Lista de los prestamos del libro")
+    private List<LoanSummary> loans = new ArrayList<>();
+
+
     @Data
     @Builder
     @NoArgsConstructor
@@ -86,4 +91,29 @@ public class Book {
         private String comment;
         private LocalDateTime reviewDate;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LoanSummary {
+        private String LoanId;
+        private LocalDate loanDate;
+        private LocalDate expectedReturnDate;
+        private String status;
+
+        private UserInfo user;
+
+        @Data
+        @Builder
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class UserInfo {
+            private String id;
+            private String fullName;
+            private String cardNum;
+        }
+
+    }
+
 }

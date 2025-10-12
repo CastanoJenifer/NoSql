@@ -88,7 +88,7 @@ public class UserService {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + userId));
 
-        // Verificar si el libroya existe
+        // Verificar si el libro existe
         if (!bookRepository.existsById(bookSummary.getBookId())) {
             throw new BookNotFoundException("Libro no encontrado con ID: " + bookSummary.getBookId());
         }
