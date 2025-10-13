@@ -61,7 +61,7 @@ public class UserController {
     }
 
     //Favoritos
-    @PostMapping("/{userId}/favorites")
+    @PostMapping("/{userId}/favorites/{bookId}")
     @Operation(summary = "Agregar un libro a favoritos")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Libro agregado a favoritos exitosamente"),
@@ -70,17 +70,9 @@ public class UserController {
     })
     public ResponseEntity<String> addFavorite(
             @PathVariable String userId,
-            @RequestBody FavoriteRequest request) {
+            @PathVariable String bookId) {
 
-        // Crear BookSummary desde el request
-        BookSummary bookSummary = BookSummary.builder()
-                .bookId(request.getBookId())
-                .title(request.getTitle())
-                .coverImageUrl(request.getCoverImageUrl())
-                .averageRating(request.getAverageRating())
-                .build();
-
-        userService.addFavorite(userId, bookSummary);
+        userService.addFavorite(userId, bookId);
         return ResponseEntity.ok("Libro agregado a favoritos exitosamente");
     }
 
