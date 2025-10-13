@@ -60,7 +60,15 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
-    //Favoritos
+    @GetMapping("/name")
+    @Operation(summary = "Obtener todos los usuarios según nombre")
+    @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida exitosamente")
+    public ResponseEntity<List<UserResponse>> getUserByFullName(@RequestParam String fullName) {
+        return ResponseEntity.ok(userService.getUserByFullName(fullName));
+    }
+
+
+    //--------------------------Favoritos-------------------------------------------
     @PostMapping("/{userId}/favorites/{bookId}")
     @Operation(summary = "Agregar un libro a favoritos")
     @ApiResponses(value = {
@@ -70,8 +78,8 @@ public class UserController {
     })
     public ResponseEntity<String> addFavorite(
             @PathVariable String userId,
-            @PathVariable String bookId) {
-
+            @PathVariable String bookId)
+    {
         userService.addFavorite(userId, bookId);
         return ResponseEntity.ok("Libro agregado a favoritos exitosamente");
     }
@@ -84,7 +92,8 @@ public class UserController {
     })
     public ResponseEntity<String> removeFavorite(
             @PathVariable String userId,
-            @PathVariable String bookId) {
+            @PathVariable String bookId)
+    {
         userService.removeFavorite(userId, bookId);
         return ResponseEntity.ok("Libro removido de favoritos exitosamente");
     }
