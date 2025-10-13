@@ -2,14 +2,23 @@ package com.example.demo.application;
 
 import com.example.demo.controllers.domain.entity.Users;
 import com.example.demo.controllers.domain.repository.UserRepository;
+
+import com.example.demo.controllers.domain.repository.BookRepository;
+
 import com.example.demo.controllers.dto.UserRequest;
 import com.example.demo.controllers.exception.UserAlreadyExistsException;
+import com.example.demo.controllers.exception.FavoriteAlreadyExistsException;
+import com.example.demo.controllers.exception.BookNotFoundException;
 import com.example.demo.controllers.exception.UserNotFoundException;
 import com.example.demo.controllers.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.example.demo.controllers.dto.FavoriteRequest;
+import com.example.demo.controllers.domain.Model.BookSummary;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +29,8 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+
+    private final BookRepository bookRepository;
 
     @Transactional
     public UserResponse createUser(UserRequest request) {
@@ -76,4 +87,53 @@ public class UserService {
                 .favorites(user.getFavorites())
                 .build();
     }
+
+    //Añadir libros favorito del usuario
+    @Transactional
+    public void addFavorite(String userId, BookSummary bookSummary) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + userId));
+
+        // Verificar si el libroya existe
+        if (!bookRepository.existsById(bookSummary.getBookId())) {
+            throw new BookNotFoundException("Libro no encontrado con ID: " + bookSummary.getBookId());
+        }
+
+        // Verificar si el libro ya está en favoritos
+        boolean alreadyExists = user.getFavorites().stream()
+                .anyMatch(fav -> fav.getBookId().equals(bookSummary.getBookId()));
+
+        if (alreadyExists) {
+            throw new FavoriteAlreadyExistsException("El libro con ID " + bookSummary.getBookId() + " ya está en favoritos del usuario");
+        }
+            user.getFavorites().add(bookSummary);
+            userRepository.save(user);
+            log.info("Libro {} agregado a favoritos del usuario {}", bookSummary.getBookId(), userId);
+
+    }
+
+    //Remover favorito
+    @Transactional
+    public void removeFavorite(String userId, String bookId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + userId));
+
+        // Remover por bookId
+        boolean removed = user.getFavorites().removeIf(fav -> fav.getBookId().equals(bookId));
+
+        if (!removed) {
+            throw new BookNotFoundException("El libro con ID " + bookId + " no está en favoritos del usuario");
+        }
+        userRepository.save(user);
+        log.info("Libro {} removido de favoritos del usuario {}", bookId, userId);
+
+    }
+
+    //Obtener libros favoritos del usuario
+    public List<BookSummary> getUserFavorites(String userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + userId));
+        return user.getFavorites();
+    }
+
 }
