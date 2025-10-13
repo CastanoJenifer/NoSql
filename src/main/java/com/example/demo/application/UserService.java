@@ -1,5 +1,6 @@
 package com.example.demo.application;
 
+import com.example.demo.controllers.domain.entity.Book;
 import com.example.demo.controllers.domain.entity.Users;
 import com.example.demo.controllers.domain.repository.UserRepository;
 
@@ -88,28 +89,28 @@ public class UserService {
                 .build();
     }
 
-    //Añadir libros favorito del usuario
+    //Añadir libros favoritos del usuario
     @Transactional
-    public void addFavorite(String userId, BookSummary bookSummary) {
-        Users user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + userId));
+    public void addFavorite(String userId, String bookId) {
 
-        // Verificar si el libroya existe
-        if (!bookRepository.existsById(bookSummary.getBookId())) {
-            throw new BookNotFoundException("Libro no encontrado con ID: " + bookSummary.getBookId());
-        }
+        Users user = userRepository.findById(userId).orElseThrow();
+        Book book = bookRepository.findById(bookId).orElseThrow();
 
-        // Verificar si el libro ya está en favoritos
+        // Verificar si ya existe en favoritos
         boolean alreadyExists = user.getFavorites().stream()
-                .anyMatch(fav -> fav.getBookId().equals(bookSummary.getBookId()));
+                .anyMatch(fav -> fav.getBookId().equals(bookId));
+        if (alreadyExists) throw new FavoriteAlreadyExistsException("El libro ya existe en favoritos");
 
-        if (alreadyExists) {
-            throw new FavoriteAlreadyExistsException("El libro con ID " + bookSummary.getBookId() + " ya está en favoritos del usuario");
-        }
-            user.getFavorites().add(bookSummary);
-            userRepository.save(user);
-            log.info("Libro {} agregado a favoritos del usuario {}", bookSummary.getBookId(), userId);
+        // Nueva instancia de BookSummary
+        BookSummary bookSummary = BookSummary.builder()
+                .bookId(book.getId())
+                .title(book.getTitle())
+                .coverImageUrl(book.getCoverImageUrl())
+                .averageRating(book.getAverageRating())
+                .build();
 
+        user.getFavorites().add(bookSummary);
+        userRepository.save(user);
     }
 
     //Remover favorito
