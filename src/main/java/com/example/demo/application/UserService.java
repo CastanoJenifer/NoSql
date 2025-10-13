@@ -58,6 +58,12 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + id));
     }
 
+    public List<UserResponse> getUserByFullName(String fullName) {
+        return userRepository.findByFullNameContainingIgnoreCase(fullName).stream()
+                .map(this::mapToUserResponse)
+                .collect(Collectors.toList());
+    }
+
     private UserResponse mapToUserResponse(Users user) {
         return UserResponse.builder()
                 .id(user.getId())

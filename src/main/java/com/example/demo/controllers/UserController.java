@@ -1,9 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.application.UserService;
-import com.example.demo.controllers.dto.BookRequest;
 import com.example.demo.controllers.dto.UserRequest;
-import com.example.demo.controllers.response.BookResponse;
 import com.example.demo.controllers.response.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -54,5 +52,12 @@ public class UserController {
     })
     public ResponseEntity<UserResponse> getUserById(@PathVariable String id) {
         return ResponseEntity.ok(userService.getUserById(id));
+    }
+
+    @GetMapping("/name")
+    @Operation(summary = "Obtener todos los usuarios según nombre")
+    @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida exitosamente")
+    public ResponseEntity<List<UserResponse>> getUserByFullName(@RequestParam String fullName) {
+        return ResponseEntity.ok(userService.getUserByFullName(fullName));
     }
 }
