@@ -15,6 +15,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import com.example.demo.controllers.domain.Model.UserSummary;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -61,6 +65,10 @@ public class Book {
 
     @NotBlank(message = "El idioma es obligatorio")
     private String language;
+
+    @Schema(description = "Lista de usuarios que tienen este libro como favorito")
+    private List<UserSummary> favoredByUsers = new ArrayList<>();
+
 
     private String coverImageUrl;
     private Double averageRating;

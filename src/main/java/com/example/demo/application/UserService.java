@@ -17,9 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.controllers.dto.FavoriteRequest;
-import com.example.demo.controllers.domain.Model.BookSummary;
 
+import com.example.demo.controllers.domain.Model.BookSummary;
+import com.example.demo.controllers.domain.Model.UserSummary;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -103,8 +103,20 @@ public class UserService {
                 .averageRating(book.getAverageRating())
                 .build();
 
+        // Nueva instancia de UserSummary
+        UserSummary userSummary = UserSummary.builder()
+                .userId(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .cardNum(user.getCardNum())
+                .build();
+
+
         user.getFavorites().add(bookSummary);
+        book.getFavoredByUsers().add(userSummary);
+
         userRepository.save(user);
+        bookRepository.save(book);
     }
 
     //Remover favorito
@@ -113,13 +125,19 @@ public class UserService {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + userId));
 
+        Book book = bookRepository.findById(bookId).orElseThrow();
+
         // Remover por bookId
         boolean removed = user.getFavorites().removeIf(fav -> fav.getBookId().equals(bookId));
-
         if (!removed) {
             throw new BookNotFoundException("El libro con ID " + bookId + " no está en favoritos del usuario");
         }
+
+        book.getFavoredByUsers().removeIf(fav -> fav.getUserId().equals(userId));
+
+
         userRepository.save(user);
+        bookRepository.save(book);
         log.info("Libro {} removido de favoritos del usuario {}", bookId, userId);
 
     }
