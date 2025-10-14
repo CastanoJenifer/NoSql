@@ -13,6 +13,8 @@ public interface ReviewRepository extends MongoRepository<Review, String> {
     // Buscar reseñas por ID del libro
     List<Review> findByBook_BookId(String bookId);
 
+    List<Review> findByRating(int rating);
+
     // --- NUEVO: Buscar reseñas por ID del usuario ---
     List<Review> findByUser_UserId(String userId);
 

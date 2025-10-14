@@ -108,6 +108,13 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
+    public List<BookResponse> getTopRated() {
+        List<Book> books;
+        books = bookRepository.findByAverageRating(5);
+        return books.stream().map(this::mapToBookResponse).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     @Cacheable(value="BooksBySearch")
     public List<BookResponse> searchBooks(String query) {
         // Búsqueda por título, autor o género

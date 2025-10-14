@@ -1,6 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.application.BookService;
+import com.example.demo.controllers.domain.entity.Book;
 import com.example.demo.controllers.dto.BookRequest;
 import com.example.demo.controllers.response.BookResponse;
 
@@ -65,6 +66,12 @@ public class BookController {
     @ApiResponse(responseCode = "200", description = "Búsqueda completada")
     public ResponseEntity<List<BookResponse>> searchBooks(@RequestParam String query) {
         return ResponseEntity.ok(bookService.searchBooks(query));
+    }
+
+    @GetMapping("/top-rated")
+    @Operation(summary = "Libros mejor calificados")
+    public ResponseEntity<List<BookResponse>> getTopRated() {
+        return ResponseEntity.ok(bookService.getTopRated());
     }
 
     @PutMapping("/{id}")
