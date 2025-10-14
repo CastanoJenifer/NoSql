@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 
 
 import com.example.demo.controllers.dto.ReviewRequest;
+import com.example.demo.controllers.dto.ReviewUpdateRequest;
 import com.example.demo.controllers.response.ReviewResponse;
 import com.example.demo.application.ReviewService;
 
@@ -53,12 +54,10 @@ public class ReviewController {
         return ResponseEntity.ok(averageRating);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     @Operation(summary = "Actualizar una reseña existente")
-    public ResponseEntity<ReviewResponse> updateReview(
-            @PathVariable String id,
-            @Valid @RequestBody ReviewRequest reviewRequest) {
-        ReviewResponse updatedReview = reviewService.updateReview(id, reviewRequest);
+    public ResponseEntity<ReviewResponse> updateReview(@Valid @RequestBody ReviewUpdateRequest reviewRequest) {
+        ReviewResponse updatedReview = reviewService.updateReview(reviewRequest);
         return ResponseEntity.ok(updatedReview);
     }
 

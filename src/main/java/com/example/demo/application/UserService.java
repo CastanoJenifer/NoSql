@@ -2,6 +2,7 @@ package com.example.demo.application;
 
 import com.example.demo.controllers.domain.entity.Book;
 import com.example.demo.controllers.domain.entity.Loan;
+import com.example.demo.controllers.domain.entity.Review;
 import com.example.demo.controllers.domain.entity.Users;
 import com.example.demo.controllers.domain.repository.LoanRepository;
 import com.example.demo.controllers.domain.repository.UserRepository;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.controllers.domain.Model.BookSummary;
 import com.example.demo.controllers.domain.Model.UserSummary;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -308,4 +310,14 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + userId));
         return user.getFavorites();
     }
+
+    public Users deleteReviewFromUser(Users user, Review review){
+        if(user.getId().equals(review.getBook().getBookId())){
+            user.getReviews().removeIf(r -> r.getId().equals(review.getId()));
+            return userRepository.save(user);
+        } else {
+            throw new BookNotFoundException("El user con ID: " + user.getId() + " no contiene la reseña con ID: " + review.getId());
+        }
+    }
+
 }

@@ -5,6 +5,7 @@ import com.example.demo.controllers.domain.Model.UserSummary;
 import com.example.demo.controllers.domain.entity.Author;
 import com.example.demo.controllers.domain.entity.Book;
 import com.example.demo.controllers.domain.entity.Categories;
+import com.example.demo.controllers.domain.entity.Review;
 import com.example.demo.controllers.domain.repository.AuthorRepository;
 import com.example.demo.controllers.domain.repository.BookRepository;
 import com.example.demo.controllers.domain.repository.CategoriesRepository;
@@ -15,6 +16,7 @@ import com.example.demo.controllers.exception.BookNotFoundException;
 import com.example.demo.controllers.response.BookResponse;
 import com.example.demo.controllers.response.LoanSummaryResponse;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
@@ -332,22 +334,12 @@ public class BookService {
     }
 
     @Transactional
-    public void updateBookAverageRating(String bookId) {
-        // Validar que el bookId no sea nulo
-        if (bookId == null) {
-            log.error("Se intentó actualizar el promedio de calificaciones con un bookId nulo");
-            throw new IllegalArgumentException("El ID del libro no puede ser nulo");
-        }
+    public void updateBookAverageRating(@NotNull Book book) {
 
-        Optional<Book> bookOpt = bookRepository.findById(bookId);
-        if (bookOpt.isEmpty()) {
-            throw new BookNotFoundException("Libro no encontrado con ID: " + bookId);
-        }
 
-        Book book = bookOpt.get();
 
         // Obtener todas las reseñas del libro desde la colección Review
-        List<com.example.demo.controllers.domain.entity.Review> reviews = reviewRepository.findByBookId(bookId);
+        List<Review> reviews = reviewRepository.findByBook_BookId(book.getId());
 
         if (reviews == null || reviews.isEmpty()) {
             book.setAverageRating(0.0);
@@ -365,7 +357,7 @@ public class BookService {
 
         bookRepository.save(book);
         log.info("Promedio de reseñas actualizado para el libro con ID: {}. Promedio: {}, Total: {}",
-                bookId, book.getAverageRating(), book.getRatingsCount());
+                book.getId(), book.getAverageRating(), book.getRatingsCount());
 
         updateBookSummaryInAuthorAndGenre(book);
     }
@@ -396,4 +388,15 @@ public class BookService {
                 .orElseThrow(() -> new BookNotFoundException("Libro no encontrado con ID: " + bookId));
         return book.getFavoredByUsers();
     }
+
+    public Book deleteReviewFromBook(Book book, Review review){
+        if(book.getId().equals(review.getBook().getBookId())){
+            book.setUpdatedAt(LocalDateTime.now());
+            book.getReviews().removeIf(r -> r.getId().equals(review.getId()));
+            return bookRepository.save(book);
+        } else {
+            throw new BookNotFoundException("El libro con ID: " + book.getId() + " no contiene la reseña con ID: " + review.getId());
+        }
+    }
+
 }

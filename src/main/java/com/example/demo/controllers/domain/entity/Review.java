@@ -1,6 +1,8 @@
 package com.example.demo.controllers.domain.entity;
 
 
+import com.example.demo.controllers.domain.Model.BookSummary;
+import com.example.demo.controllers.domain.Model.UserSummary;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,21 +28,12 @@ public class Review {
     private String id;
 
     // Datos del libro (denormalizados)
-    @NotBlank(message = "El ID del libro es obligatorio")
-    @Indexed
-    private String bookId;
+    @NotNull(message = "El libro es obligatorio")
+    private BookSummary book;
 
-    @NotBlank(message = "El título del libro es obligatorio")
-    private String bookTitle;
+    @NotNull(message = "El usuario es obligatorio")
+    private UserSummary user;
 
-    @NotBlank(message = "El autor del libro es obligatorio")
-    private String bookAuthor;
-
-    @NotBlank(message = "El ID del usuario es obligatorio")
-    private String userId;
-
-    @NotBlank(message = "El nombre del usuario es obligatorio")
-    private String userName;
 
     // Datos de la reseña
     @NotNull(message = "La calificación es obligatoria")

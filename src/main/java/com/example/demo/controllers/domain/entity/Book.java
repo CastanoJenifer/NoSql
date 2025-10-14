@@ -74,7 +74,7 @@ public class Book {
     private String coverImageUrl;
     private Double averageRating;
     private Integer ratingsCount;
-    private List<Review> reviews;
+    private List<Review> reviews = new ArrayList<>();
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -84,7 +84,7 @@ public class Book {
 
 
     @Schema(description = "Lista de los prestamos del libro")
-    private List<LoanSummary> loans;
+    private List<LoanSummary> loans = new ArrayList<>();
 
     @Schema(description = "Disponibilidad del libro para préstamo por defecto 'true'")
     private Boolean available = true;
@@ -95,12 +95,27 @@ public class Book {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Review {
-        private String userId;
-        private String userName;
+
+        private String id;
+
+        private UserInfo user;
+
         @Min(1) @Max(5)
         private Integer rating;
         private String comment;
         private LocalDateTime reviewDate;
+
+
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserInfo {
+        private String id;
+        private String fullName;
+        private String cardNum;
     }
 
     @Data
@@ -117,15 +132,6 @@ public class Book {
         private LocalDate returnDate; // Nueva fecha de devolución, puede ser null
         private UserInfo user;
 
-        @Data
-        @Builder
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class UserInfo {
-            private String id;
-            private String fullName;
-            private String cardNum;
-        }
 
     }
 

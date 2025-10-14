@@ -134,7 +134,7 @@ public class LoanService {
                 .expectedReturnDate(loan.getExpectedReturnDate())
                 .status(loan.getStatus())
                 .returnDate(loan.getReturnDate()) // Asigna la fecha de devolución
-                .user(Book.LoanSummary.UserInfo.builder()
+                .user(Book.UserInfo.builder()
                         .id(loan.getUser().getUserId())
                         .cardNum(loan.getUser().getCardNum())
                         .fullName(loan.getUser().getFullName())
@@ -156,7 +156,7 @@ public class LoanService {
                 .loanDate(loan.getLoanDate())
                 .expectedReturnDate(loan.getExpectedReturnDate())
                 .status(loan.getStatus())
-                .book(Users.LoanSummary.BookInfo.builder()
+                .book(Users.BookInfo.builder()
                         .id(loan.getBook().getBookId())
                         .title(loan.getBook().getTitle())
                         .coverImageUrl(loan.getBook().getCoverImageUrl())

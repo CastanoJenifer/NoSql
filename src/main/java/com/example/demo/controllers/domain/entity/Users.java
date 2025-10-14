@@ -75,27 +75,29 @@ public class Users {
         private LocalDate returnDate; // Nueva fecha de devolución, puede ser null
         private BookInfo book;
 
-        @Data
-        @Builder
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class BookInfo {
-            private String id;
-            private String title;
-            private String coverImageUrl;
-        }
 
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BookInfo {
+        private String id;
+        private String title;
+        private String coverImageUrl;
+    }
+
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Review {
-        private String userId;
-        private String userName;
-        private String bookId;
-        private String bookName;
-        private String bookTitle;
+
+        private String id;
+
+        private BookInfo book;
+
         @Min(1) @Max(5)
         private Integer rating;
         private String comment;

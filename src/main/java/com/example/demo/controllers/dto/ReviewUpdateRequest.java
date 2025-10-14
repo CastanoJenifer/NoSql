@@ -9,19 +9,14 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Request para crear reviews")
-public class ReviewRequest {
+@NoArgsConstructor
+@Schema(description = "Request para actualizar una reseña de un libro")
+public class ReviewUpdateRequest {
 
-    @Schema(description = "ID del libro a reseñar", example = "67042a1a8c5e5e0e4c0e9d3a", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "El ID del libro es obligatorio")
-    private String bookId;
-
-    @Schema(description = "ID del usuario que realiza la reseña", example = "67042a1a8c5e5e0e4c0e9d3b", requiredMode = Schema.RequiredMode.REQUIRED) // Ajusta el ejemplo
-    @NotBlank(message = "El ID del usuario es obligatorio")
-    private String userId;
-
+    @Schema(description = "ID de la reseña a actualizar", example = "67042a1a8c5e5e0e4c0e9d3c", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "El ID de la reseña es obligatorio")
+    private String Id;
 
     @Schema(description = "Calificación del libro (1 a 5 estrellas)", example = "5", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "La calificación es obligatoria")

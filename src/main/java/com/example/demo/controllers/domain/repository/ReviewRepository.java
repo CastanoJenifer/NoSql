@@ -11,10 +11,10 @@ import java.util.List;
 public interface ReviewRepository extends MongoRepository<Review, String> {
 
     // Buscar reseñas por ID del libro
-    List<Review> findByBookId(String bookId);
+    List<Review> findByBook_BookId(String bookId);
 
     // --- NUEVO: Buscar reseñas por ID del usuario ---
-    List<Review> findByUserId(String userId);
+    List<Review> findByUser_UserId(String userId);
 
     // Calcular promedio de calificaciones por libro usando agregación
     @Aggregation(pipeline = {
@@ -25,5 +25,5 @@ public interface ReviewRepository extends MongoRepository<Review, String> {
     Double calculateAverageRatingByBookId(String bookId);
 
     // Opcional: Eliminar reseñas por ID del libro (útil si se elimina un libro)
-    void deleteByBookId(String bookId);
+    void deleteByBook_BookId(String bookId);
 }
