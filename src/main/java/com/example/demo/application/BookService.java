@@ -276,8 +276,6 @@ public class BookService {
                 .build();
     }
 
-
-
     private void updateGenresWithNewBook(Book book) {
         BookSummary summary = createBookSummary(book);
         book.getCategories().forEach(genreName -> {

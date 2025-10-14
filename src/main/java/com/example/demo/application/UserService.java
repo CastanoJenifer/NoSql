@@ -1,15 +1,14 @@
 package com.example.demo.application;
 
 import com.example.demo.controllers.domain.entity.Book;
+import com.example.demo.controllers.domain.entity.Loan;
 import com.example.demo.controllers.domain.entity.Users;
+import com.example.demo.controllers.domain.repository.LoanRepository;
 import com.example.demo.controllers.domain.repository.UserRepository;
 import com.example.demo.controllers.domain.repository.BookRepository;
 
 import com.example.demo.controllers.dto.UserRequest;
-import com.example.demo.controllers.exception.UserAlreadyExistsException;
-import com.example.demo.controllers.exception.FavoriteAlreadyExistsException;
-import com.example.demo.controllers.exception.BookNotFoundException;
-import com.example.demo.controllers.exception.UserNotFoundException;
+import com.example.demo.controllers.exception.*;
 import com.example.demo.controllers.response.UserResponse;
 import com.example.demo.controllers.response.LoanSummaryResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.controllers.dto.FavoriteRequest;
 import com.example.demo.controllers.domain.Model.BookSummary;
 import com.example.demo.controllers.domain.Model.UserSummary;
 
@@ -32,6 +30,8 @@ public class UserService {
     private final UserRepository userRepository;
 
     private final BookRepository bookRepository;
+
+    private final LoanRepository loanRepository;
 
     @Transactional
     public UserResponse createUser(UserRequest request) {
@@ -79,6 +79,39 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public UserResponse updateUser(String id, UserRequest request) {
+        return userRepository.findById(id)
+                .map(user -> {
+
+                    String oldCardNum = user.getCardNum();
+
+                    // Actualizar campos
+                    user.setCardNum(request.getCardNum());
+                    user.setFullName(request.getFullName());
+                    user.setAddress(request.getAddress());
+                    user.setEmail(request.getEmail());
+                    user.setNumber(request.getNumber());
+
+                    // Verificar si el cardNum ha cambiado y si ya existe
+                    if (!oldCardNum.equals(request.getCardNum()) &&
+                            userRepository.existsByCardNum(request.getCardNum())) {
+                        throw new UserAlreadyExistsException("Ya existe un usuario con el número de tarjeta: " + request.getCardNum());
+                    }
+                    user.setCardNum(request.getCardNum());
+
+                    // Guardar el usuario actualizado
+                    Users updatedUser = userRepository.save(user);
+                    log.info("User actualizado con ID: {}", id);
+
+                    updateUserSummaryInLoans(updatedUser);
+                    updateUserSummaryInBooks(updatedUser);
+
+                    return mapToUserResponse(updatedUser);
+                })
+                .orElseThrow(() -> new UserNotFoundException("No se puede actualizar. Usuario no encontrado con ID: " + id));
+    }
+
     private UserResponse mapToUserResponse(Users user) {
         return UserResponse.builder()
                 .id(user.getId())
@@ -103,6 +136,110 @@ public class UserService {
                                 .build() : null)
                         .build()).toList() : null)
                 .build();
+    }
+
+    private void updateUserSummaryInLoans(Users user) {
+
+        UserSummary updatedSummary = UserSummary.builder()
+                .userId(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .cardNum(user.getCardNum())
+                .build();
+
+        List<Loan> loans = loanRepository.findByUser_UserId(user.getId());
+
+        if (loans.isEmpty()){
+            log.info("No se encontraron préstamos asociados al usuario con ID: {}", user.getId());
+            return;
+        }
+
+        loans.forEach(loan -> {
+            loan.setUser(updatedSummary);
+        });
+
+        loanRepository.saveAll(loans);
+
+        log.info("Se actualizaron {} préstamos con la información del usuario {}", loans.size(), user.getFullName());
+    }
+
+    private void updateUserSummaryInBooks(Users user) {
+
+        List<Book> loanBooks = bookRepository.findByLoans_User_Id(user.getId());
+
+        for (Book book : loanBooks) {
+            if (book.getLoans() != null) {
+                book.getLoans().forEach(loan -> {
+                    if (loan.getUser() != null && user.getId().equals(loan.getUser().getId())) {
+                        loan.getUser().setFullName(user.getFullName());
+                        loan.getUser().setCardNum(user.getCardNum());
+                    }
+                });
+                bookRepository.save(book);
+                log.info("Actualizado usuario {} en préstamo del libro '{}'", user.getFullName(), book.getTitle());
+            }
+        }
+
+        List<Book> favoredBooks = bookRepository.findByFavoredByUsers_UserId(user.getId());
+
+        for (Book book : favoredBooks) {
+            if (book.getFavoredByUsers() != null) {
+                book.getFavoredByUsers().forEach(favored -> {
+                    if (user.getId().equals(favored.getUserId())) {
+                        favored.setFullName(user.getFullName());
+                        favored.setEmail(user.getEmail());
+                        favored.setCardNum(user.getCardNum());
+                    }
+                });
+                bookRepository.save(book);
+                log.info("Actualizado usuario {} en favoritos del libro '{}'", user.getFullName(), book.getTitle());
+            }
+        }
+    }
+
+    @Transactional
+    public void deleteUser(String id) {
+        Users user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("No se puede eliminar. Usuario no encontrado con ID: " + id));
+
+        // Eliminar el usuario de prestamos
+        List<Loan> userLoans = loanRepository.findByUser_UserId(id);
+        boolean hasActiveLoans = userLoans.stream()
+                .anyMatch(loan -> "Prestado".equalsIgnoreCase(loan.getStatus()) ||
+                        "vencido".equalsIgnoreCase(loan.getStatus()));
+
+        if (hasActiveLoans) {
+            throw new IllegalStateException("No se puede eliminar el usuario porque tiene préstamos activos o vencidos.");
+        }
+
+        if (!userLoans.isEmpty()) {
+            loanRepository.deleteAll(userLoans);
+            log.info("Préstamos entregados del usuario {} eliminados", user.getFullName());
+        }
+
+        // Eliminar el usuario de libros
+        List<Book> favoredBooks = bookRepository.findByFavoredByUsers_UserId(id);
+        for (Book book : favoredBooks) {
+            if (book.getFavoredByUsers() != null) {
+                book.getFavoredByUsers().removeIf(favored -> id.equals(favored.getUserId()));
+                bookRepository.save(book);
+                log.info("Usuario {} eliminado de favoritos del libro '{}'", user.getFullName(), book.getTitle());
+            }
+        }
+
+        List<Book> booksWithLoans = bookRepository.findByLoans_User_Id(id);
+        for (Book book : booksWithLoans) {
+            if (book.getLoans() != null) {
+                book.getLoans().forEach(loan -> {
+                    if (loan.getUser() != null && id.equals(loan.getUser().getId())) {
+                        loan.setUser(null);
+                    }
+                });
+                bookRepository.save(book);
+            }
+        }
+        userRepository.delete(user);
+        log.info("Usuario eliminado con ID: {}", id);
     }
 
     //Añadir libros favoritos del usuario

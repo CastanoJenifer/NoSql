@@ -1,9 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.application.UserService;
-import com.example.demo.controllers.dto.BookRequest;
 import com.example.demo.controllers.dto.UserRequest;
-import com.example.demo.controllers.response.BookResponse;
 import com.example.demo.controllers.response.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -11,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -68,7 +65,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserByFullName(fullName));
     }
 
-   /* @PutMapping("/{id}")
+    @PutMapping("/{id}")
     @Operation(summary = "Actualizar un usuario existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario actualizado exitosamente"),
@@ -76,10 +73,11 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
             @ApiResponse(responseCode = "409", description = "El número de tarjeta ya está en uso por otro usuario")
     })
-     public ResponseEntity<UserResponse> updateUser(
+    public ResponseEntity<UserResponse> updateBook(
             @PathVariable String id,
             @Valid @RequestBody UserRequest userRequest) {
-        return ResponseEntity.ok(userRequest.updateUser(id, userRequest));} *
+        return ResponseEntity.ok(userService.updateUser(id, userRequest));
+    }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -91,7 +89,6 @@ public class UserController {
     public void deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
     }
-*/
 
     //--------------------------Favoritos-------------------------------------------
     @PostMapping("/{userId}/favorites/{bookId}")
