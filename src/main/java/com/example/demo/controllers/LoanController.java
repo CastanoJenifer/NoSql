@@ -55,4 +55,25 @@ public class LoanController {
         return loanService.getAllLoans();
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Obtener un préstamo por su ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Préstamo encontrado"),
+            @ApiResponse(responseCode = "404", description = "Préstamo no encontrado")
+    })
+    public ResponseEntity<LoanResponse> getLoanById(@PathVariable String id) {
+        return ResponseEntity.ok(loanService.getLoanById(id));
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Eliminar un préstamo")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Préstamo eliminado exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Préstamo no encontrado")
+    })
+    public void deleteLoan(@PathVariable String id) {
+        loanService.deleteLoan(id);
+    }
+
 }

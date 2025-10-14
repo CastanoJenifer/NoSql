@@ -18,6 +18,9 @@ import com.example.demo.controllers.response.LoanResponse;
 import com.example.demo.controllers.response.LoanSummaryResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -245,6 +248,45 @@ public class LoanService {
 
         return mapToLoanResponse(loan);
     }
+
+    @Transactional(readOnly = true)
+    @Cacheable(value = "loansById")
+    public LoanResponse getLoanById(String id) {
+        return loanRepository.findById(id)
+                .map(this::mapToLoanResponse)
+                .orElseThrow(() -> new LoanNotFoundException("Préstamo no encontrado con ID: " + id));
+    }
+
+    @Transactional
+    @CacheEvict(value = "loansById", key = "#id")
+    public void deleteLoan(String id) {
+        // Buscar el préstamo
+        Loan loan = loanRepository.findById(id)
+                .orElseThrow(() -> new LoanNotFoundException("No se puede eliminar. Préstamo no encontrado con ID: " + id));
+
+        // Eliminar la referencia del préstamo en el usuario
+        userRepository.findById(loan.getUser().getUserId()).ifPresent(user -> {
+            if (user.getLoans() != null) {
+                user.getLoans().removeIf(summary -> summary.getLoanId().equals(id));
+                userRepository.save(user);
+                log.info("Préstamo '{}' eliminado del usuario '{}'", id, user.getFullName());
+            }
+        });
+
+        // Eliminar la referencia del préstamo en el libro
+        bookRepository.findById(loan.getBook().getBookId()).ifPresent(book -> {
+            if (book.getLoans() != null) {
+                book.getLoans().removeIf(summary -> summary.getLoanId().equals(id));
+                bookRepository.save(book);
+                log.info("Préstamo '{}' eliminado del libro '{}'", id, book.getTitle());
+            }
+        });
+
+        // Eliminar el préstamo de la base de datos
+        loanRepository.delete(loan);
+        log.info("Préstamo eliminado con ID: {}", id);
+    }
+
 
 }
 
