@@ -81,7 +81,7 @@ public class UserService {
                 .reviews(user.getReviews())
                 .favorites(user.getFavorites())
                 .loans(user.getLoans() != null ? user.getLoans().stream().map(loan -> LoanSummaryResponse.builder()
-                        .loanId(loan.getLoanId())
+                        .id(loan.getId())
                         .loanDate(loan.getLoanDate())
                         .expectedReturnDate(loan.getExpectedReturnDate())
                         .returnDate(loan.getReturnDate())

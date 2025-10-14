@@ -82,5 +82,12 @@ public interface BookRepository extends MongoRepository <Book, String> {
      */
     long deleteByIsbn(String isbn);
 
+    /**
+     * Busca libros por disponibilidad
+     * @param available true para disponibles, false para prestados
+     * @return Lista de libros según disponibilidad
+     */
+    List<Book> findByAvailable(boolean available);
+
 
 }

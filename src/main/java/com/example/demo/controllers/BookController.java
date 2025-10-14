@@ -40,10 +40,10 @@ public class BookController {
     }
 
     @GetMapping
-    @Operation(summary = "Obtener todos los libros")
+    @Operation(summary = "Obtener todos los libros o filtrar por disponibilidad")
     @ApiResponse(responseCode = "200", description = "Lista de libros obtenida exitosamente")
-    public ResponseEntity<List<BookResponse>> getAllBooks() {
-        return ResponseEntity.ok(bookService.getBooks());
+    public ResponseEntity<List<BookResponse>> getAllBooks(@RequestParam(value = "available", required = false) Boolean available) {
+        return ResponseEntity.ok(bookService.getBooks(available));
     }
 
     @GetMapping("/{id}")

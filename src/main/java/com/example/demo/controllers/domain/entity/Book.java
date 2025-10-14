@@ -76,7 +76,7 @@ public class Book {
 
 
     @Schema(description = "Lista de los prestamos del libro")
-    private List<LoanSummary> loans = new ArrayList<>();
+    private List<LoanSummary> loans;
 
     @Schema(description = "Disponibilidad del libro para préstamo por defecto 'true'")
     private Boolean available = true;
@@ -100,7 +100,9 @@ public class Book {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class LoanSummary {
-        private String LoanId;
+
+        private String id;
+
         private LocalDate loanDate;
         private LocalDate expectedReturnDate;
         private String status;

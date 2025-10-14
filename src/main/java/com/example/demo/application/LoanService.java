@@ -18,6 +18,7 @@ import com.example.demo.controllers.response.LoanResponse;
 import com.example.demo.controllers.response.LoanSummaryResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,7 @@ public class LoanService {
     private final LoanRepository loanRepository;
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
+    private final CacheManager cacheManager;
 
 
     @Transactional
@@ -78,6 +80,11 @@ public class LoanService {
         Loan savedLoan = loanRepository.save(loan);
         log.info("Préstamo creado con ID: {}", savedLoan.getId());
 
+        // Limpiar la caché de libros relacionada
+        cacheManager.getCache("books").clear();
+        cacheManager.getCache("booksById").evict(book.getId());
+        cacheManager.getCache("BooksBySearch").clear();
+
         // crear o actualizar el libro con la información del prestamo
         // Al crear un nuevo préstamo, el libro ya no está disponible
         book.setAvailable(false);
@@ -119,7 +126,7 @@ public class LoanService {
     private void updateBookWithNewLoan(Book book, Loan loan) {
 
         Book.LoanSummary loanSummary = Book.LoanSummary.builder()
-                .LoanId(loan.getId())
+                .id(loan.getId())
                 .loanDate(loan.getLoanDate())
                 .expectedReturnDate(loan.getExpectedReturnDate())
                 .status(loan.getStatus())
@@ -142,7 +149,7 @@ public class LoanService {
     private void updateUserWithNewLoan(Users user, Loan loan) {
 
         Users.LoanSummary loanSummary = Users.LoanSummary.builder()
-                .LoanId(loan.getId())
+                .id(loan.getId())
                 .loanDate(loan.getLoanDate())
                 .expectedReturnDate(loan.getExpectedReturnDate())
                 .status(loan.getStatus())
@@ -192,7 +199,7 @@ public class LoanService {
     private static LoanSummaryResponse mapLoanSummaryToResponse(Book.LoanSummary loanSummary) {
         if (loanSummary == null) return null;
         return LoanSummaryResponse.builder()
-                .loanId(loanSummary.getLoanId())
+                .id(loanSummary.getId())
                 .loanDate(loanSummary.getLoanDate())
                 .expectedReturnDate(loanSummary.getExpectedReturnDate())
                 .returnDate(loanSummary.getReturnDate())
@@ -223,7 +230,7 @@ public class LoanService {
         Book book = bookRepository.findById(loan.getBook().getBookId()).orElseThrow(() -> new BookNotFoundException("Libro no encontrado"));
         // actualizando el estado del prestamo en el libro
         book.getLoans().stream()
-                .filter(loanSummary -> loanSummary.getLoanId().equals(loan.getId()))
+                .filter(loanSummary -> loanSummary.getId().equals(loan.getId()))
                 .forEach(loanSummary -> {
                     loanSummary.setStatus("Entregado");
                     loanSummary.setReturnDate(loan.getReturnDate());
@@ -232,11 +239,16 @@ public class LoanService {
         book.setAvailable(true);
         bookRepository.save(book);
 
+        // Limpiar la caché de libros relacionada
+        cacheManager.getCache("books").clear();
+        cacheManager.getCache("booksById").evict(book.getId());
+        cacheManager.getCache("BooksBySearch").clear();
+
         // extrayendo el usuario
         Users user = userRepository.findById(loan.getUser().getUserId()).orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
         // actualizando el estado y la fecha de devolución en el préstamo del usuario
         user.getLoans().stream()
-                .filter(loanSummary -> loanSummary.getLoanId().equals(loan.getId()))
+                .filter(loanSummary -> loanSummary.getId().equals(loan.getId()))
                 .forEach(loanSummary -> {
                     loanSummary.setStatus("Entregado");
                     loanSummary.setReturnDate(loan.getReturnDate());
@@ -247,4 +259,3 @@ public class LoanService {
     }
 
 }
-

@@ -86,11 +86,14 @@ public class BookService {
 
     @Transactional(readOnly = true)
     @Cacheable(value="books")
-    public List<BookResponse> getBooks() {
-        return bookRepository.findAll()
-                .stream()
-                .map(this::mapToBookResponse)
-                .collect(Collectors.toList());
+    public List<BookResponse> getBooks(Boolean available) {
+        List<Book> books;
+        if (available == null) {
+            books = bookRepository.findAll();
+        } else {
+            books = bookRepository.findByAvailable(available);
+        }
+        return books.stream().map(this::mapToBookResponse).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -260,7 +263,7 @@ public class BookService {
                 .updatedAt(book.getUpdatedAt())
                 .available(book.getAvailable())
                 .loans(book.getLoans() != null ? book.getLoans().stream().map(loan -> LoanSummaryResponse.builder()
-                        .loanId(loan.getLoanId())
+                        .id(loan.getId())
                         .loanDate(loan.getLoanDate())
                         .expectedReturnDate(loan.getExpectedReturnDate())
                         .returnDate(loan.getReturnDate())
@@ -270,7 +273,6 @@ public class BookService {
                                 .fullName(loan.getUser().getFullName())
                                 .cardNum(loan.getUser().getCardNum())
                                 .build() : null)
-                        .book(null)
                         .build()).toList() : null)
                 .build();
     }
@@ -333,9 +335,9 @@ public class BookService {
     @Transactional
     public void updateBookAverageRating(String bookId) {
         // Validar que el bookId no sea nulo
-        if (bookId == null || bookId.trim().isEmpty()) {
-            log.error("Se intentó actualizar el promedio de calificaciones con un bookId nulo o vacío");
-            throw new IllegalArgumentException("El ID del libro no puede ser nulo o vacío");
+        if (bookId == null) {
+            log.error("Se intentó actualizar el promedio de calificaciones con un bookId nulo");
+            throw new IllegalArgumentException("El ID del libro no puede ser nulo");
         }
 
         Optional<Book> bookOpt = bookRepository.findById(bookId);
@@ -373,9 +375,8 @@ public class BookService {
         authorRepository.findByName(book.getAuthor()).ifPresent(author -> {
             author.getBooks().stream()
                     .filter(summary -> summary.getBookId().equals(book.getId()))
-                    .forEach(summary -> {
-                        summary.setAverageRating(book.getAverageRating());
-                    });
+                    .forEach(summary -> summary.setAverageRating(book.getAverageRating())
+                    );
             authorRepository.save(author);
         });
 
@@ -384,9 +385,7 @@ public class BookService {
                 genreRepository.findByName(genreName).ifPresent(genre -> {
                     genre.getBooks().stream()
                             .filter(summary -> summary.getBookId().equals(book.getId()))
-                            .forEach(summary -> {
-                                summary.setAverageRating(book.getAverageRating());
-                            });
+                            .forEach(summary -> summary.setAverageRating(book.getAverageRating()));
                     genreRepository.save(genre);
                 })
         );

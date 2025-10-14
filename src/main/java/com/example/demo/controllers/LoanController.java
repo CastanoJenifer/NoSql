@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/loans")
-@Tag(name = "Controlador para la gestión de préstamos de libros")
+@Tag(name = "Préstamos", description = "API para la gestión de préstamos de libros")
 @RequiredArgsConstructor
 public class LoanController {
     private final LoanService loanService;
