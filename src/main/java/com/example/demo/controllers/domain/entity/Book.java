@@ -16,6 +16,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import com.example.demo.controllers.domain.Model.UserSummary;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -63,6 +67,10 @@ public class Book {
     @NotBlank(message = "El idioma es obligatorio")
     private String language;
 
+    @Schema(description = "Lista de usuarios que tienen este libro como favorito")
+    private List<UserSummary> favoredByUsers = new ArrayList<>();
+
+
     private String coverImageUrl;
     private Double averageRating;
     private Integer ratingsCount;
@@ -76,7 +84,7 @@ public class Book {
 
 
     @Schema(description = "Lista de los prestamos del libro")
-    private List<LoanSummary> loans = new ArrayList<>();
+    private List<LoanSummary> loans;
 
     @Schema(description = "Disponibilidad del libro para préstamo por defecto 'true'")
     private Boolean available = true;
@@ -100,7 +108,9 @@ public class Book {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class LoanSummary {
-        private String LoanId;
+
+        private String id;
+
         private LocalDate loanDate;
         private LocalDate expectedReturnDate;
         private String status;

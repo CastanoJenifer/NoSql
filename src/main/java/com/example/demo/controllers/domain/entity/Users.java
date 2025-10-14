@@ -65,7 +65,7 @@ public class Users {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class LoanSummary {
-        private String LoanId;
+        private String id;
         private LocalDate loanDate;
         private LocalDate expectedReturnDate;
         private String status;

@@ -16,7 +16,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.demo.controllers.domain.Model.UserSummary;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Validated
 @RestController
@@ -40,10 +44,10 @@ public class BookController {
     }
 
     @GetMapping
-    @Operation(summary = "Obtener todos los libros")
+    @Operation(summary = "Obtener todos los libros o filtrar por disponibilidad")
     @ApiResponse(responseCode = "200", description = "Lista de libros obtenida exitosamente")
-    public ResponseEntity<List<BookResponse>> getAllBooks() {
-        return ResponseEntity.ok(bookService.getBooks());
+    public ResponseEntity<List<BookResponse>> getAllBooks(@RequestParam(value = "available", required = false) Boolean available) {
+        return ResponseEntity.ok(bookService.getBooks(available));
     }
 
     @GetMapping("/{id}")
@@ -86,5 +90,24 @@ public class BookController {
     })
     public void deleteBook(@PathVariable String id) {
         bookService.deleteBook(id);
+    }
+
+    // Lista de usuarios que eligieron el libro con fav
+    @GetMapping("/{bookId}/favorited-by")
+    @Operation(summary = "Obtener usuarios que tienen este libro como favorito")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Libro no encontrado")
+    })
+    public ResponseEntity<?> getUsersWhoFavoritedBook(@PathVariable String bookId) {
+        List<UserSummary> users = bookService.getUsersWhoFavoritedBook(bookId);
+
+        if (users.isEmpty()) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "No hay usuarios que tengan este libro como favorito");
+            return ResponseEntity.ok(response);
+        }
+
+        return ResponseEntity.ok(users);
     }
 }

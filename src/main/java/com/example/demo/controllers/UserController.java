@@ -1,9 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.application.UserService;
-import com.example.demo.controllers.dto.BookRequest;
 import com.example.demo.controllers.dto.UserRequest;
-import com.example.demo.controllers.response.BookResponse;
 import com.example.demo.controllers.response.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.demo.controllers.dto.FavoriteRequest;
+
 import com.example.demo.controllers.domain.Model.BookSummary;
 
 
@@ -60,8 +58,40 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
-    //Favoritos
-    @PostMapping("/{userId}/favorites")
+    @GetMapping("/name")
+    @Operation(summary = "Obtener todos los usuarios según nombre")
+    @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida exitosamente")
+    public ResponseEntity<List<UserResponse>> getUserByFullName(@RequestParam String fullName) {
+        return ResponseEntity.ok(userService.getUserByFullName(fullName));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Actualizar un usuario existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario actualizado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @ApiResponse(responseCode = "409", description = "El número de tarjeta ya está en uso por otro usuario")
+    })
+    public ResponseEntity<UserResponse> updateBook(
+            @PathVariable String id,
+            @Valid @RequestBody UserRequest userRequest) {
+        return ResponseEntity.ok(userService.updateUser(id, userRequest));
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Eliminar un usuario")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Usuario eliminado exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
+    public void deleteUser(@PathVariable String id) {
+        userService.deleteUser(id);
+    }
+
+    //--------------------------Favoritos-------------------------------------------
+    @PostMapping("/{userId}/favorites/{bookId}")
     @Operation(summary = "Agregar un libro a favoritos")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Libro agregado a favoritos exitosamente"),
@@ -70,17 +100,9 @@ public class UserController {
     })
     public ResponseEntity<String> addFavorite(
             @PathVariable String userId,
-            @RequestBody FavoriteRequest request) {
-
-        // Crear BookSummary desde el request
-        BookSummary bookSummary = BookSummary.builder()
-                .bookId(request.getBookId())
-                .title(request.getTitle())
-                .coverImageUrl(request.getCoverImageUrl())
-                .averageRating(request.getAverageRating())
-                .build();
-
-        userService.addFavorite(userId, bookSummary);
+            @PathVariable String bookId)
+    {
+        userService.addFavorite(userId, bookId);
         return ResponseEntity.ok("Libro agregado a favoritos exitosamente");
     }
 
@@ -92,7 +114,8 @@ public class UserController {
     })
     public ResponseEntity<String> removeFavorite(
             @PathVariable String userId,
-            @PathVariable String bookId) {
+            @PathVariable String bookId)
+    {
         userService.removeFavorite(userId, bookId);
         return ResponseEntity.ok("Libro removido de favoritos exitosamente");
     }
