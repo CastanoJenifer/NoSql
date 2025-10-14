@@ -279,7 +279,7 @@ public class LoanService {
         // Eliminar la referencia del préstamo en el usuario
         userRepository.findById(loan.getUser().getUserId()).ifPresent(user -> {
             if (user.getLoans() != null) {
-                user.getLoans().removeIf(summary -> summary.getLoanId().equals(id));
+                user.getLoans().removeIf(summary -> summary.getId().equals(id));
                 userRepository.save(user);
                 log.info("Préstamo '{}' eliminado del usuario '{}'", id, user.getFullName());
             }
@@ -288,7 +288,7 @@ public class LoanService {
         // Eliminar la referencia del préstamo en el libro
         bookRepository.findById(loan.getBook().getBookId()).ifPresent(book -> {
             if (book.getLoans() != null) {
-                book.getLoans().removeIf(summary -> summary.getLoanId().equals(id));
+                book.getLoans().removeIf(summary -> summary.getId().equals(id));
                 bookRepository.save(book);
                 log.info("Préstamo '{}' eliminado del libro '{}'", id, book.getTitle());
             }
