@@ -89,5 +89,18 @@ public interface BookRepository extends MongoRepository <Book, String> {
      */
     List<Book> findByAvailable(boolean available);
 
+    /**
+     * Encuentra libros por el id del usuario que hizo su prestamo
+     * @param userId id del usuario a buscar
+     * @return Lista de ibros encontrados
+     */
+    List<Book> findByLoans_User_Id(String userId);
+
+    /**
+     * Encuentra libros por el id del usuario que tiene en favoritos
+     * @param userId id del usuario a buscar
+     * @return Lista de ibros encontrados
+     */
+    List<Book> findByFavoredByUsers_UserId(String userId);
 
 }
