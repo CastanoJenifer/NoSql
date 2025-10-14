@@ -58,18 +58,21 @@ public class UserService {
         return mapToUserResponse(savedUser);
     }
 
+    @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(this::mapToUserResponse)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public UserResponse getUserById(String id) {
         return userRepository.findById(id)
                 .map(this::mapToUserResponse)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + id));
     }
 
+    @Transactional(readOnly = true)
     public List<UserResponse> getUserByFullName(String fullName) {
         return userRepository.findByFullNameContainingIgnoreCase(fullName).stream()
                 .map(this::mapToUserResponse)
@@ -149,10 +152,10 @@ public class UserService {
     }
 
     //Obtener libros favoritos del usuario
+    @Transactional(readOnly = true)
     public List<BookSummary> getUserFavorites(String userId) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + userId));
         return user.getFavorites();
     }
-
 }

@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -65,6 +66,31 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida exitosamente")
     public ResponseEntity<List<UserResponse>> getUserByFullName(@RequestParam String fullName) {
         return ResponseEntity.ok(userService.getUserByFullName(fullName));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Actualizar un usuario existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario actualizado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @ApiResponse(responseCode = "409", description = "El número de tarjeta ya está en uso por otro usuario")
+    })
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable String id,
+            @Valid @RequestBody UserRequest userRequest) {
+        return ResponseEntity.ok(userRequest.updateUser(id, userRequest));
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Eliminar un usuario")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Usuario eliminado exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
+    public void deleteUser(@PathVariable String id) {
+        userService.deleteUser(id);
     }
 
 
