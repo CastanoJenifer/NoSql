@@ -70,24 +70,17 @@ public class LoanService {
                 .status("Prestado")
                 .loanDate(request.getLoanDate())
                 .expectedReturnDate(request.getExpectedReturnDate())
-                .book(new BookSummary(book.getId(), book.getTitle(), book.getCoverImageUrl(), book.getAverageRating()))
-                .user(new UserSummary(user.getId(), user.getFullName(), user.getCardNum(), user.getEmail()))
+                .book(createBookSummary(book))
+                .user(createUserSummary(user))
                 .build();
 
         // Guardar el préstamo
         Loan savedLoan = loanRepository.save(loan);
         log.info("Préstamo creado con ID: {}", savedLoan.getId());
 
-        // ingreso el BookSummary al Loan
-        BookSummary bookSummary = createBookSummary(book);
-        savedLoan.setBook(bookSummary);
-
-        // Ingreso el UserSummary al Loan
-        UserSummary userSummary = createUserSummary(user);
-        savedLoan.setUser(userSummary);
-
-
         // crear o actualizar el libro con la información del prestamo
+        // Al crear un nuevo préstamo, el libro ya no está disponible
+        book.setAvailable(false);
         updateBookWithNewLoan(book, savedLoan);
 
         // Crear o actualizar el usuario con la información del prestamo
@@ -112,17 +105,11 @@ public class LoanService {
                 .bookId(book.getId())
                 .title(book.getTitle())
                 .coverImageUrl(book.getCoverImageUrl())
+                .averageRating(book.getAverageRating())
                 .build();
     }
 
 
-
-    public Optional<Loan> updateLoan(String id, Loan loan) {
-        return loanRepository.findById(id).map(existing -> {
-            loan.setId(id);
-            return loanRepository.save(loan);
-        });
-    }
 
     public List<Loan> getAllLoans() {
         return loanRepository.findAll();
@@ -241,6 +228,8 @@ public class LoanService {
                     loanSummary.setStatus("Entregado");
                     loanSummary.setReturnDate(loan.getReturnDate());
                 });
+        // Al marcar el préstamo como entregado, el libro vuelve a estar disponible
+        book.setAvailable(true);
         bookRepository.save(book);
 
         // extrayendo el usuario
