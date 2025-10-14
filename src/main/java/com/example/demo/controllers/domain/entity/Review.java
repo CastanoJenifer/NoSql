@@ -36,6 +36,12 @@ public class Review {
     @NotBlank(message = "El autor del libro es obligatorio")
     private String bookAuthor;
 
+    @NotBlank(message = "El ID del usuario es obligatorio")
+    private String userId;
+
+    @NotBlank(message = "El nombre del usuario es obligatorio")
+    private String userName;
+
     // Datos de la reseña
     @NotNull(message = "La calificación es obligatoria")
     @Min(value = 1, message = "La calificación mínima es 1")

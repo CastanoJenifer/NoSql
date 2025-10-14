@@ -3,6 +3,8 @@ package com.example.demo.controllers.domain.entity;
 
 import com.example.demo.controllers.domain.Model.BookSummary;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,6 +84,22 @@ public class Users {
             private String title;
             private String coverImageUrl;
         }
+
+    }
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Review {
+        private String userId;
+        private String userName;
+        private String bookId;
+        private String bookName;
+        private String bookTitle;
+        @Min(1) @Max(5)
+        private Integer rating;
+        private String comment;
+        private LocalDateTime reviewDate; // <-- Este campo SI EXISTE aquí
     }
 
 

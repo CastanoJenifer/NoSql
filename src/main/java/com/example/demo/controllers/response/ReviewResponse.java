@@ -4,6 +4,7 @@ package com.example.demo.controllers.response;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,6 +32,12 @@ public class ReviewResponse implements Serializable {
 
     @Schema(description = "Autor del libro reseñado", example = "Gabriel García Márquez")
     private String bookAuthor;
+
+    @Schema(description = "ID del usuario que realiza la reseña", example = "67042a1a8c5e5e0e4c0e9d3b") // Ajusta el ejempl
+    private String userId;
+
+    @Schema(description = "ID del usuario que realiza la reseña", example = "67042a1a8c5e5e0e4c0e9d3b") // Ajusta el ejempl
+    private String userName;
 
     @Schema(description = "Calificación del libro (1 a 5 estrellas)", example = "4")
     private Integer rating;

@@ -13,6 +13,9 @@ public interface ReviewRepository extends MongoRepository<Review, String> {
     // Buscar reseñas por ID del libro
     List<Review> findByBookId(String bookId);
 
+    // --- NUEVO: Buscar reseñas por ID del usuario ---
+    List<Review> findByUserId(String userId);
+
     // Calcular promedio de calificaciones por libro usando agregación
     @Aggregation(pipeline = {
             "{ $match: { bookId: ?0 } }",

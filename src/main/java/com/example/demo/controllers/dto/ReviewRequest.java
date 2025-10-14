@@ -18,6 +18,11 @@ public class ReviewRequest {
     @NotBlank(message = "El ID del libro es obligatorio")
     private String bookId;
 
+    @Schema(description = "ID del usuario que realiza la reseña", example = "67042a1a8c5e5e0e4c0e9d3b", requiredMode = Schema.RequiredMode.REQUIRED) // Ajusta el ejemplo
+    @NotBlank(message = "El ID del usuario es obligatorio")
+    private String userId;
+
+
     @Schema(description = "Calificación del libro (1 a 5 estrellas)", example = "5", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "La calificación es obligatoria")
     @Min(value = 1, message = "La calificación mínima es 1")

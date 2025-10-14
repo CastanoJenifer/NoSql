@@ -39,6 +39,13 @@ public class ReviewController {
         return ResponseEntity.ok(reviews);
     }
 
+    @GetMapping("/user/{userId}")
+    @Operation(summary = "Obtener reseñas por ID del usuario")
+    public ResponseEntity<List<ReviewResponse>> getReviewsByUserId(@PathVariable String userId) {
+        List<ReviewResponse> reviews = reviewService.getReviewsByUserId(userId);
+        return ResponseEntity.ok(reviews);
+    }
+
     @GetMapping("/book/{bookId}/average-rating")
     @Operation(summary = "Calcular y obtener la calificación promedio de un libro")
     public ResponseEntity<Double> getAverageRatingByBookId(@PathVariable String bookId) {

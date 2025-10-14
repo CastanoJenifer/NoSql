@@ -1,13 +1,13 @@
 package com.example.demo.controllers.response;
 
 import com.example.demo.controllers.domain.Model.BookSummary;
-import com.example.demo.controllers.domain.entity.Review;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import com.example.demo.controllers.domain.entity.Users;
 
 import java.io.Serializable;
 import java.util.List;
@@ -41,7 +41,7 @@ public class UserResponse implements Serializable {
     private List<LoanSummaryResponse> loans;
 
     @Schema(description = "Lista de las reseñas hechas por el usuario")
-    private List<Review> reviews;
+    private List<Users.Review> reviews;
 
     @Schema(description = "Lista de los libros favoritos del usuario")
     private List<BookSummary> favorites;
