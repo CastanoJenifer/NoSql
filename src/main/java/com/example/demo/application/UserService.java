@@ -3,7 +3,6 @@ package com.example.demo.application;
 import com.example.demo.controllers.domain.entity.Book;
 import com.example.demo.controllers.domain.entity.Users;
 import com.example.demo.controllers.domain.repository.UserRepository;
-
 import com.example.demo.controllers.domain.repository.BookRepository;
 
 import com.example.demo.controllers.dto.UserRequest;
@@ -12,12 +11,13 @@ import com.example.demo.controllers.exception.FavoriteAlreadyExistsException;
 import com.example.demo.controllers.exception.BookNotFoundException;
 import com.example.demo.controllers.exception.UserNotFoundException;
 import com.example.demo.controllers.response.UserResponse;
+import com.example.demo.controllers.response.LoanSummaryResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
+import com.example.demo.controllers.dto.FavoriteRequest;
 import com.example.demo.controllers.domain.Model.BookSummary;
 import com.example.demo.controllers.domain.Model.UserSummary;
 
@@ -89,6 +89,19 @@ public class UserService {
                 .number(user.getNumber())
                 .reviews(user.getReviews())
                 .favorites(user.getFavorites())
+                .loans(user.getLoans() != null ? user.getLoans().stream().map(loan -> LoanSummaryResponse.builder()
+                        .loanId(loan.getLoanId())
+                        .loanDate(loan.getLoanDate())
+                        .expectedReturnDate(loan.getExpectedReturnDate())
+                        .returnDate(loan.getReturnDate())
+                        .status(loan.getStatus())
+                        .user(null)
+                        .book(loan.getBook() != null ? LoanSummaryResponse.BookInfoResponse.builder()
+                                .id(loan.getBook().getId())
+                                .title(loan.getBook().getTitle())
+                                .coverImageUrl(loan.getBook().getCoverImageUrl())
+                                .build() : null)
+                        .build()).toList() : null)
                 .build();
     }
 

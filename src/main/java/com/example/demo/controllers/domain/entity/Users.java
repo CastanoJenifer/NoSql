@@ -13,6 +13,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,12 +50,38 @@ public class Users {
     @Schema(description = "Número de teléfono del usuario", example = "3243685898")
     private String number;
 
-    //@Schema(description = "Lista de los prestamos del usuario")
-    //private List<BookLoans> loans = new ArrayList<>();
+    @Schema(description = "Lista de los prestamos del usuario")
+    private List<LoanSummary> loans = new ArrayList<>();
 
     @Schema(description = "Lista de las reseñas hechas por el usuario")
     private List<Review> reviews = new ArrayList<>();
 
     @Schema(description = "Lista de los libros favoritos del usuario")
     private List<BookSummary> favorites = new ArrayList<>();
+
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LoanSummary {
+        private String LoanId;
+        private LocalDate loanDate;
+        private LocalDate expectedReturnDate;
+        private String status;
+        private LocalDate returnDate; // Nueva fecha de devolución, puede ser null
+        private BookInfo book;
+
+        @Data
+        @Builder
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class BookInfo {
+            private String id;
+            private String title;
+            private String coverImageUrl;
+        }
+    }
+
+
 }

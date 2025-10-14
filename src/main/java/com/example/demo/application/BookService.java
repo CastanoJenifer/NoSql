@@ -13,6 +13,7 @@ import com.example.demo.controllers.dto.BookRequest;
 import com.example.demo.controllers.exception.BookAlreadyExistsException;
 import com.example.demo.controllers.exception.BookNotFoundException;
 import com.example.demo.controllers.response.BookResponse;
+import com.example.demo.controllers.response.LoanSummaryResponse;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -258,6 +259,20 @@ public class BookService {
                 .ratingsCount(book.getRatingsCount())
                 .createdAt(book.getCreatedAt())
                 .updatedAt(book.getUpdatedAt())
+                .available(book.getAvailable())
+                .loans(book.getLoans() != null ? book.getLoans().stream().map(loan -> LoanSummaryResponse.builder()
+                        .loanId(loan.getLoanId())
+                        .loanDate(loan.getLoanDate())
+                        .expectedReturnDate(loan.getExpectedReturnDate())
+                        .returnDate(loan.getReturnDate())
+                        .status(loan.getStatus())
+                        .user(loan.getUser() != null ? LoanSummaryResponse.UserInfoResponse.builder()
+                                .id(loan.getUser().getId())
+                                .fullName(loan.getUser().getFullName())
+                                .cardNum(loan.getUser().getCardNum())
+                                .build() : null)
+                        .book(null)
+                        .build()).toList() : null)
                 .build();
     }
 

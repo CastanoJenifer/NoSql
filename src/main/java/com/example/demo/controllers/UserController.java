@@ -68,7 +68,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserByFullName(fullName));
     }
 
-    @PutMapping("/{id}")
+   /* @PutMapping("/{id}")
     @Operation(summary = "Actualizar un usuario existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario actualizado exitosamente"),
@@ -76,11 +76,10 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
             @ApiResponse(responseCode = "409", description = "El número de tarjeta ya está en uso por otro usuario")
     })
-    public ResponseEntity<UserResponse> updateUser(
+     public ResponseEntity<UserResponse> updateUser(
             @PathVariable String id,
             @Valid @RequestBody UserRequest userRequest) {
-        return ResponseEntity.ok(userRequest.updateUser(id, userRequest));
-    }
+        return ResponseEntity.ok(userRequest.updateUser(id, userRequest));} *
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -92,7 +91,7 @@ public class UserController {
     public void deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
     }
-
+*/
 
     //--------------------------Favoritos-------------------------------------------
     @PostMapping("/{userId}/favorites/{bookId}")
