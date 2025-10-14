@@ -1,6 +1,7 @@
 package com.example.demo.application;
 
 import com.example.demo.controllers.domain.Model.BookSummary;
+import com.example.demo.controllers.domain.Model.UserSummary;
 import com.example.demo.controllers.domain.entity.Author;
 import com.example.demo.controllers.domain.entity.Book;
 import com.example.demo.controllers.domain.entity.Categories;
@@ -275,8 +276,6 @@ public class BookService {
                 .build();
     }
 
-
-
     private void updateGenresWithNewBook(Book book) {
         BookSummary summary = createBookSummary(book);
         book.getCategories().forEach(genreName -> {
@@ -390,5 +389,12 @@ public class BookService {
                     genreRepository.save(genre);
                 })
         );
+    }
+
+    // Usuarios que tienen el libro como favoritos
+    public List<UserSummary> getUsersWhoFavoritedBook(String bookId) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new BookNotFoundException("Libro no encontrado con ID: " + bookId));
+        return book.getFavoredByUsers();
     }
 }
