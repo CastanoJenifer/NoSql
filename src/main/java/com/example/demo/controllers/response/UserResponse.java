@@ -37,8 +37,8 @@ public class UserResponse implements Serializable {
     @Schema(description = "Número de teléfono del usuario")
     private String number;
 
-    //@Schema(description = "Lista de los prestamos del usuario")
-    //private List<BookLoans> loans;
+    @Schema(description = "Lista de los prestamos del usuario")
+    private List<LoanSummaryResponse> loans;
 
     @Schema(description = "Lista de las reseñas hechas por el usuario")
     private List<Review> reviews;

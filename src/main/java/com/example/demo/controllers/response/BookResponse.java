@@ -2,7 +2,8 @@ package com.example.demo.controllers.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
+import java.util.List;
+import com.example.demo.controllers.response.LoanSummaryResponse;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,6 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 
 @Data
@@ -41,6 +41,8 @@ public class BookResponse implements Serializable {
     private Double averageRating;
     private Integer ratingsCount;
     private List<ReviewResponse> reviews;
+    private Boolean available;
+    private List<LoanSummaryResponse> loans;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
@@ -62,4 +64,3 @@ public class BookResponse implements Serializable {
         private LocalDateTime reviewDate;
     }
 }
-

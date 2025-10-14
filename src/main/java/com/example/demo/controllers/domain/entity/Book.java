@@ -78,6 +78,9 @@ public class Book {
     @Schema(description = "Lista de los prestamos del libro")
     private List<LoanSummary> loans = new ArrayList<>();
 
+    @Schema(description = "Disponibilidad del libro para préstamo por defecto 'true'")
+    private Boolean available = true;
+
 
     @Data
     @Builder
@@ -101,7 +104,7 @@ public class Book {
         private LocalDate loanDate;
         private LocalDate expectedReturnDate;
         private String status;
-
+        private LocalDate returnDate; // Nueva fecha de devolución, puede ser null
         private UserInfo user;
 
         @Data

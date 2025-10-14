@@ -1,12 +1,11 @@
 package com.example.demo.controllers.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -14,12 +13,8 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Respuesta de la API para un préstamo")
-public class LoanResponse implements Serializable {
-
-    private String id;
-    private String status;
+public class LoanSummaryResponse implements Serializable {
+    private String loanId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate loanDate;
@@ -30,28 +25,27 @@ public class LoanResponse implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate returnDate;
 
-    private BookInfoResponse book;
-    private UserInfoResponse user;
+    private String status;
+    private UserInfoResponse user; // Solo se usa en BookResponse
+    private BookInfoResponse book; // Solo se usa en UserResponse
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @Schema(description = "Información resumida del libro prestado")
-    public static class BookInfoResponse implements Serializable{
+    public static class UserInfoResponse implements Serializable {
         private String id;
-        private String title;
-        private String coverImageUrl;
+        private String fullName;
+        private String cardNum;
     }
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @Schema(description = "Información resumida del usuario que realizó el préstamo")
-    public static class UserInfoResponse implements Serializable{
+    public static class BookInfoResponse implements Serializable {
         private String id;
-        private String fullName;
-        private String cardNum;
+        private String title;
+        private String coverImageUrl;
     }
 }

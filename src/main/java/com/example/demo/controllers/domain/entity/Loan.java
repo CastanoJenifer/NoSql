@@ -18,7 +18,7 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "loans")
+@Document(collection = "prestamos")
 @Schema(description = "Entidad que representa un préstamo de un libro a un usuario")
 public class Loan {
     @Id

@@ -69,8 +69,7 @@ public class Users {
         private LocalDate loanDate;
         private LocalDate expectedReturnDate;
         private String status;
-
-
+        private LocalDate returnDate; // Nueva fecha de devolución, puede ser null
         private BookInfo book;
 
         @Data
